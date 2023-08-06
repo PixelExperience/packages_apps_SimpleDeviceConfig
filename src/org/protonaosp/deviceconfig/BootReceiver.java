@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.provider.DeviceConfig;
 import android.util.Log;
+import android.os.SystemProperties;
 
 public class BootReceiver extends BroadcastReceiver {
     private static final String TAG = "SimpleDeviceConfig";
@@ -38,6 +39,12 @@ public class BootReceiver extends BroadcastReceiver {
         updateConfig(context, R.array.configs_base_soft, true);
 
         updateConfig(context, R.array.configs_device, false);
+
+        boolean isPixelDevice = Arrays.asList(context.getResources().getStringArray(R.array.pixel_devices))
+            .contains(SystemProperties.get("org.pixelexperience.device"));
+        if (isPixelDevice){
+            updateConfig(context, R.array.configs_base_pixel, false);
+        }
     }
 
     private void updateConfig(Context context, int configArray, boolean isSoft) {
