@@ -20,8 +20,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.provider.DeviceConfig;
+import android.provider.Settings;
 import android.util.Log;
 import android.os.SystemProperties;
+import java.util.Arrays;
 
 public class BootReceiver extends BroadcastReceiver {
     private static final String TAG = "SimpleDeviceConfig";
@@ -35,6 +37,7 @@ public class BootReceiver extends BroadcastReceiver {
     }
 
     private void updateDefaultConfigs(Context context) {
+        resetConfigs(context, R.array.reset_namespaces);
         updateConfig(context, R.array.configs_base, false);
         updateConfig(context, R.array.configs_base_soft, true);
 
@@ -66,6 +69,16 @@ public class BootReceiver extends BroadcastReceiver {
             // Skip soft configs that already have values
             if (!isSoft || DeviceConfig.getString(namespace, key, null) == null) {
                 DeviceConfig.setProperty(namespace, key, value, false);
+            }
+        }
+    }
+
+    private void resetConfigs(Context context, int configArray) {
+        // Reset namespace configs
+        String[] namespaces = context.getResources().getStringArray(configArray);
+        for (String namespace : namespaces) {
+            for (String propertyKey : DeviceConfig.getProperties(namespace).getKeyset()) {
+                DeviceConfig.deleteProperty(namespace, propertyKey);
             }
         }
     }
